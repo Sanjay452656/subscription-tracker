@@ -10,18 +10,20 @@ export const signup = async (req,res,next)=>{
         if(existingUser){
             return next(new Error("User already exists"))   
         }
-        const newUser = await User.create({name,email,password});
 
         //password hashing and token generation logic
         const salt = await bcrypt.genSalt(10);
-        newUser.password = await bcrypt.hash(password,salt);
+        const hashedPassword = await bcrypt.hash(password,salt);
+        const newUser = await User.create({name,email,password:hashedPassword});
         const token = jwt.sign({id:newUser._id},process.env.JWT_SECRET,{expiresIn:'1d'});
 
         res.status(201).json({
             success:true,
             message:'User registered Successfully',
-            token,
-            user:newUser
+            data:{
+                token,
+                user:newUser
+            }
         })
     } catch (error) {
         next(error);
@@ -29,7 +31,27 @@ export const signup = async (req,res,next)=>{
 }
 
 export const signin = async (req,res,next)=>{
+    try {
+        const {email,password} = req.body;
 
+        const user = await User.findOne({email});
+        if(!user){
+            return next(new Error("User not found"));
+        }
+        const isMatch = await bcrypt.compare(password,user.password);
+        if(!isMatch){
+            return next(new Error("Invalid credentials"));
+        }
+        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'1d'});
+        res.status(200).json({
+            success:true,
+            message:'User signed in successfully',
+            token,
+            user
+        })
+    } catch (error) {
+        next(error);
+    }
 }
 
 export const signout = async (req,res,next)=>{
