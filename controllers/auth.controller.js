@@ -14,9 +14,11 @@ export const signup = async (req,res,next)=>{
         //password hashing and token generation logic
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password,salt);
+        //create new user
         const newUser = await User.create({name,email,password:hashedPassword});
+        //generate token
         const token = jwt.sign({id:newUser._id},process.env.JWT_SECRET,{expiresIn:'1d'});
-
+        
         res.status(201).json({
             success:true,
             message:'User registered Successfully',
