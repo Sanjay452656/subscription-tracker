@@ -30,6 +30,6 @@ app.get('/',(req,res)=>{
 
 const PORT=process.env.PORT;
 
-app.listen(PORT,()=>{
+app.listen(3000,()=>{
     console.log(`Server running on PORT :${PORT}`);
 })
