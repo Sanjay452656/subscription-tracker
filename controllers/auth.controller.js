@@ -16,8 +16,9 @@ export const signup = async (req,res,next)=>{
         const hashedPassword = await bcrypt.hash(password,salt);
         //create new user
         const newUser = await User.create({name,email,password:hashedPassword});
+        newUser.password = undefined; //hide password in response
         //generate token
-        const token = jwt.sign({id:newUser._id},process.env.JWT_SECRET,{expiresIn:'1d'});
+        const token = jwt.sign({id:newUser._id},process.env.JWT_SECRET,{expiresIn:'7d'});
         
         res.status(201).json({
             success:true,
@@ -44,7 +45,7 @@ export const signin = async (req,res,next)=>{
         if(!isMatch){
             return next(new Error("Invalid credentials"));
         }
-        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'1d'});
+        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'7d'});
         res.status(200).json({
             success:true,
             message:'User signed in successfully',
@@ -57,5 +58,5 @@ export const signin = async (req,res,next)=>{
 }
 
 export const signout = async (req,res,next)=>{
-
+    
 }

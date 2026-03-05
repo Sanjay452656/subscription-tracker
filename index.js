@@ -2,6 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import renewalReminderJob from './jobs/renewalReminder.job.js';
 import express from 'express'
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.routes.js';
@@ -24,12 +25,14 @@ app.use(errorMiddleware);
 
 await connectToDB()
 
+renewalReminderJob();
+
 app.get('/',(req,res)=>{
     res.send("Yay Server is running")
 })
 
 const PORT=process.env.PORT;
 
-app.listen(3000,()=>{
+app.listen(PORT,()=>{
     console.log(`Server running on PORT :${PORT}`);
 })
